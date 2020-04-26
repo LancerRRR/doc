@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-var routes []Route
+var routes []*Route
 var isRequired bool
 var description string
 var isRequest bool
@@ -58,10 +58,18 @@ type ResponseNested struct {
 func SpecifyPackages(pks []string) {
 	for _, v := range pks {
 		packages[v] = true
+		packages["*"+v] = true
 	}
 }
 
-func AddRoute(route Route) {
+func AddRoute(route *Route) {
+	if route.Request != nil {
+		route.Request = InterfaceToType(route.Request)
+	}
+	if route.Response != nil {
+		route.ResponseJSON = InterfaceToJSON(route.Response)
+		route.Response = InterfaceToType(route.Response)
+	}
 	routes = append(routes, route)
 }
 
@@ -93,11 +101,8 @@ func UploadRoutes() {
 	}
 }
 
-func GetAllRoutes() ([]Route, error) {
-	c := Mongodb.DB("route").C("ci_routes")
-	out := []Route{}
-	err := c.Find(nil).All(&out)
-	return out, err
+func GetAllRoutes() []*Route {
+	return routes
 }
 
 //func InitRedis(url string, password string) {
