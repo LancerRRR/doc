@@ -273,7 +273,7 @@ func InterfaceToType(v interface{}) interface{} {
 		if packages[getPrefix(reflect.TypeOf(v).String())] {
 			kind1 := kind
 			val := reflect.Indirect(reflect.ValueOf(v))
-			if val.IsNil() {
+			if val.Kind() == reflect.Ptr && val.IsNil() {
 				val = reflect.New(val.Type())
 			}
 			typeOfTstObj := val.Type()
