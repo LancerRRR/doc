@@ -274,7 +274,7 @@ func InterfaceToType(v interface{}) interface{} {
 			kind1 := kind
 			var val reflect.Value
 			if reflect.ValueOf(v).IsNil() {
-				val = reflect.New(reflect.TypeOf(v))
+				val = reflect.Indirect(reflect.New(reflect.TypeOf(v)))
 			} else {
 				val = reflect.Indirect(reflect.ValueOf(v))
 			}
