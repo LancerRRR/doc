@@ -270,11 +270,12 @@ func InterfaceToType(v interface{}) interface{} {
 		accessed = 1
 		return InterfaceToType(reflect.New(val.Type().Elem().Elem()).Interface())
 	case reflect.Ptr:
-		fmt.Println("ptr: ", reflect.TypeOf(v).String())
 		if packages[getPrefix(reflect.TypeOf(v).String())] {
 			kind1 := kind
 			val := reflect.Indirect(reflect.ValueOf(v))
-			fmt.Println("ptr: ", reflect.ValueOf(v))
+			if val.IsNil() {
+				val = reflect.New(val.Type())
+			}
 			typeOfTstObj := val.Type()
 			out := make(map[string]interface{}, 0)
 			output := RequestNested{}
