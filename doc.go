@@ -208,6 +208,7 @@ func InterfaceToType(v interface{}) interface{} {
 	// case time.Time:
 	// 	return "string"
 	// }
+	fmt.Println(reflect.TypeOf(v).Kind())
 	switch reflect.TypeOf(v).Kind() {
 	case reflect.Struct:
 		if packages[getPrefix(reflect.TypeOf(v).String())] {
