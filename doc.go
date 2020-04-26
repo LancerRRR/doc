@@ -272,11 +272,11 @@ func InterfaceToType(v interface{}) interface{} {
 	case reflect.Ptr:
 		if packages[getPrefix(reflect.TypeOf(v).String())] {
 			kind1 := kind
-			fmt.Println("val: ", reflect.ValueOf(v))
-			val := reflect.Indirect(reflect.ValueOf(v))
-			fmt.Println(val.Kind())
-			if val.Kind() == reflect.Ptr && val.IsNil() {
-				val = reflect.New(val.Type())
+			var val reflect.Value
+			if reflect.ValueOf(v).IsNil() {
+				val = reflect.New(reflect.TypeOf(v))
+			} else {
+				val = reflect.Indirect(reflect.ValueOf(v))
 			}
 			fmt.Println("ptr value: ", val)
 			typeOfTstObj := val.Type()
