@@ -208,7 +208,6 @@ func InterfaceToType(v interface{}) interface{} {
 	// case time.Time:
 	// 	return "string"
 	// }
-	fmt.Println(reflect.TypeOf(v).Kind())
 	switch reflect.TypeOf(v).Kind() {
 	case reflect.Struct:
 		if packages[getPrefix(reflect.TypeOf(v).String())] {
@@ -275,6 +274,7 @@ func InterfaceToType(v interface{}) interface{} {
 			kind1 := kind
 			val := reflect.Indirect(reflect.ValueOf(v))
 			if val.Kind() == reflect.Ptr && val.IsNil() {
+				fmt.Println(val.Type())
 				val = reflect.New(val.Type())
 			}
 			fmt.Println("ptr value: ", val)
@@ -294,7 +294,9 @@ func InterfaceToType(v interface{}) interface{} {
 				accessed = 1
 				value := InterfaceToType(fieldType.Interface())
 				jsonTag := typeOfTstObj.Field(i).Tag.Get("json")
-				fmt.Println("jsonTag: ", jsonTag)
+				if jsonTag == "" {
+					jsonTag = typeOfTstObj.Field(i).Name
+				}
 				key := ""
 				for i := 0; i < len(jsonTag); i++ {
 					if string(jsonTag[i]) == "," {
