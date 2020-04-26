@@ -276,6 +276,7 @@ func InterfaceToType(v interface{}) interface{} {
 			if val.Kind() == reflect.Ptr && val.IsNil() {
 				val = reflect.New(val.Type())
 			}
+			fmt.Println("ptr value: ", val)
 			typeOfTstObj := val.Type()
 			out := make(map[string]interface{}, 0)
 			output := RequestNested{}
