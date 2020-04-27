@@ -2,12 +2,12 @@ package doc
 
 import (
 	"crypto/tls"
-	"fmt"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
 	"net"
 	"reflect"
 	"time"
+
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 var routes []*Route
@@ -187,6 +187,37 @@ func InterfaceToJSON(v interface{}) interface{} {
 			out[key] = value
 		}
 		return out
+	case reflect.Ptr:
+		if packages[getPrefix(reflect.TypeOf(v).String())] {
+			var val reflect.Value
+			if reflect.ValueOf(v).IsNil() {
+				val = reflect.Indirect(reflect.New(reflect.TypeOf(v).Elem()))
+			} else {
+				val = reflect.Indirect(reflect.ValueOf(v))
+			}
+			typeOfTstObj := val.Type()
+			out := make(map[string]interface{}, 0)
+			for i := 0; i < val.NumField(); i++ {
+				fieldType := val.Field(i)
+				jsonTag := typeOfTstObj.Field(i).Tag.Get("json")
+				value := InterfaceToJSON(fieldType.Interface())
+				key := ""
+				for i := 0; i < len(jsonTag); i++ {
+					if string(jsonTag[i]) == "," {
+						break
+					}
+					key += string(jsonTag[i])
+				}
+				out[key] = value
+			}
+			return out
+		} else {
+			field := Request{}
+			field.Type = reflect.TypeOf(v).String()
+			field.Description = description
+			field.IsRequired = isRequired
+			return field
+		}
 	case reflect.Slice:
 		val := reflect.ValueOf(v)
 		if val.Len() == 0 {
@@ -258,14 +289,6 @@ func InterfaceToType(v interface{}) interface{} {
 			field.IsRequired = isRequired
 			return field
 		}
-		// if val.Len() == 0 {
-
-		// 	field := Request{}
-		// 	field.Type = reflect.TypeOf(v).String()
-		// 	field.Description = description
-		// 	field.IsRequired = isRequired
-		// 	return field
-		// }
 		kind = "array"
 		accessed = 1
 		return InterfaceToType(reflect.New(val.Type().Elem().Elem()).Interface())
@@ -278,7 +301,6 @@ func InterfaceToType(v interface{}) interface{} {
 			} else {
 				val = reflect.Indirect(reflect.ValueOf(v))
 			}
-			fmt.Println("ptr value: ", val)
 			typeOfTstObj := val.Type()
 			out := make(map[string]interface{}, 0)
 			output := RequestNested{}
